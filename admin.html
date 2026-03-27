@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garden Plan Admin - Create Interactive Plans</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body>
+    <div class="admin-container">
+        <h1>🌿 Garden Plan Creator</h1>
+        <p class="subtitle">Create interactive garden plans for your clients</p>
+
+        <!-- Step 1: Upload Image -->
+        <section class="admin-section">
+            <h2>Step 1: Upload Garden Plan Image</h2>
+            <div class="upload-area" id="upload-area">
+                <input type="file" id="image-upload" accept="image/*" hidden>
+                <label for="image-upload" class="upload-label">
+                    <div class="upload-icon">📁</div>
+                    <p>Click to upload or drag & drop</p>
+                    <p class="upload-hint">JPG, PNG, or WebP</p>
+                </label>
+            </div>
+            <div id="image-preview-container" style="display: none;">
+                <canvas id="admin-canvas"></canvas>
+            </div>
+        </section>
+
+        <!-- Step 2: Map Regions -->
+        <section class="admin-section" id="mapping-section" style="display: none;">
+            <h2>Step 2: Map Garden Zones</h2>
+            <div class="instructions-box">
+                <p><strong>How to map zones:</strong></p>
+                <ol>
+                    <li>Click "Start New Zone" below</li>
+                    <li>Click points around the zone boundary on the image</li>
+                    <li>Click "Complete Zone" when done</li>
+                    <li>Give the zone a name and add plants</li>
+                </ol>
+            </div>
+
+            <div class="mapping-controls">
+                <button id="start-zone-btn" class="btn btn-primary">Start New Zone</button>
+                <button id="complete-zone-btn" class="btn btn-success" style="display: none;">Complete Zone</button>
+                <button id="cancel-zone-btn" class="btn btn-secondary" style="display: none;">Cancel</button>
+                <button id="clear-all-btn" class="btn btn-danger">Clear All Zones</button>
+            </div>
+
+            <div id="current-zone-info" style="display: none;">
+                <p>Click points on the image to outline the zone. Points: <span id="point-count">0</span></p>
+            </div>
+
+            <div id="zones-list">
+                <h3>Mapped Zones (<span id="zone-count">0</span>)</h3>
+                <div id="zones-container"></div>
+            </div>
+        </section>
+
+        <!-- Step 3: Generate & Download -->
+        <section class="admin-section" id="generate-section" style="display: none;">
+            <h2>Step 3: Generate Client View</h2>
+            <div class="project-info">
+                <label for="project-name">Project Name (e.g., "5243 Babcock"):</label>
+                <input type="text" id="project-name" placeholder="Enter project name">
+            </div>
+
+            <button id="preview-btn" class="btn btn-primary">Preview Client View</button>
+            <button id="download-btn" class="btn btn-success">Download Complete Package</button>
+
+            <div class="help-text">
+                <p><strong>What you'll get:</strong></p>
+                <ul>
+                    <li>Interactive HTML file with your garden plan</li>
+                    <li>All necessary CSS and JavaScript files</li>
+                    <li>Ready to upload to a website or share directly</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Zone Editor Modal -->
+        <div id="zone-modal" class="modal">
+            <div class="modal-content">
+                <span class="modal-close">&times;</span>
+                <h2>Configure Zone</h2>
+
+                <div class="form-group">
+                    <label for="zone-name">Zone Name:</label>
+                    <input type="text" id="zone-name" placeholder="e.g., Wildflower Meadow">
+                </div>
+
+                <div class="form-group">
+                    <label for="zone-plants">Plants (one per line):</label>
+                    <textarea id="zone-plants" rows="10" placeholder="Black Eyed Susan&#10;Purple Coneflower&#10;Butterfly Weed"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button id="save-zone-btn" class="btn btn-success">Save Zone</button>
+                    <button id="cancel-modal-btn" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="generate-client.js"></script>
+    <script type="module" src="admin.js"></script>
+</body>
+</html>

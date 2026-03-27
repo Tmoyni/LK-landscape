@@ -1,0 +1,18 @@
+{
+  "name": "landscape",
+  "version": "1.0.0",
+  "description": "This project allows clients to click on different regions of a garden plan image to view plant information.",
+  "main": "script.js",
+  "scripts": {
+    "dev": "browser-sync start --server --files '*.html, *.css, *.js'",
+    "build": "echo 'No build needed for static site'",
+    "preview": "browser-sync start --server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "browser-sync": "^3.0.4",
+    "vite": "^7.3.1"
+  }
+}

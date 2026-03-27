@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Info</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .info-box {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #662D91;
+        }
+        #click-info {
+            background: #e3f2fd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Debug Information</h1>
+
+    <div class="info-box">
+        <h3>Image Dimensions</h3>
+        <p>Original: <span id="orig-dims"></span></p>
+        <p>Displayed: <span id="display-dims"></span></p>
+        <p>Scale: <span id="scale"></span></p>
+    </div>
+
+    <div class="info-box" id="click-info">
+        <h3>Click Test</h3>
+        <p>Click on the image below</p>
+        <p>Original coords: <span id="orig-coords">-</span></p>
+        <p>Display coords: <span id="display-coords">-</span></p>
+        <p>Zone detected: <span id="zone-detected">-</span></p>
+    </div>
+
+    <div class="info-box">
+        <img id="test-image" src="garden-plan.webp" style="max-width: 800px; border: 2px solid #ccc; cursor: crosshair;">
+    </div>
+
+    <script type="module">
+        const ORIGINAL_WIDTH = 1500;
+        const ORIGINAL_HEIGHT = 1034;
+
+        const zones = {
+            'succulent-garden': {
+                coords: [1129,225,1192,230,1206,275,1211,356,1211,409,1184,495,1133,584,1118,587,1106,572,1106,547,1154,477,1162,435,1162,396,1167,339,1161,300,1133,274,1122,259],
+                name: 'Succulent Garden Walkway'
+            },
+            'wildflower-meadow': {
+                coords: [1329,201,1398,198,1393,656,1322,693],
+                name: 'Wildflower Meadow'
+            },
+            'north-walkway': {
+                coords: [501,230,806,238,804,283,511,280],
+                name: 'North Walkway'
+            },
+            'south-walkway': {
+                coords: [386,759,892,759,1018,755,1087,777,1092,825,481,817,481,795,453,777],
+                name: 'South Walkway'
+            },
+            'garden-bed': {
+                coords: [119,333,164,353,176,494,197,543,156,690,115,719],
+                name: 'Garden Bed'
+            }
+        };
+
+        function isPointInPolygon(point, polygon) {
+            let x = point.x, y = point.y;
+            let inside = false;
+
+            for (let i = 0, j = polygon.length - 2; i < polygon.length; i += 2) {
+                let xi = polygon[i], yi = polygon[i + 1];
+                let xj = polygon[j], yj = polygon[j + 1];
+
+                let intersect = ((yi > y) !== (yj > y))
+                    && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+
+                j = i;
+            }
+
+            return inside;
+        }
+
+        const img = document.getElementById('test-image');
+
+        img.addEventListener('load', () => {
+            const rect = img.getBoundingClientRect();
+            document.getElementById('orig-dims').textContent = `${ORIGINAL_WIDTH} x ${ORIGINAL_HEIGHT}`;
+            document.getElementById('display-dims').textContent = `${Math.round(rect.width)} x ${Math.round(rect.height)}`;
+            document.getElementById('scale').textContent = `${(rect.width / ORIGINAL_WIDTH).toFixed(3)}`;
+        });
+
+        img.addEventListener('click', (e) => {
+            const rect = img.getBoundingClientRect();
+
+            // Display coordinates
+            const displayX = Math.round(e.clientX - rect.left);
+            const displayY = Math.round(e.clientY - rect.top);
+
+            // Original coordinates
+            const scaleX = ORIGINAL_WIDTH / rect.width;
+            const scaleY = ORIGINAL_HEIGHT / rect.height;
+            const origX = Math.round(displayX * scaleX);
+            const origY = Math.round(displayY * scaleY);
+
+            document.getElementById('display-coords').textContent = `${displayX}, ${displayY}`;
+            document.getElementById('orig-coords').textContent = `${origX}, ${origY}`;
+
+            // Check zones
+            const point = { x: origX, y: origY };
+            let found = 'None';
+
+            for (const [key, zone] of Object.entries(zones)) {
+                if (isPointInPolygon(point, zone.coords)) {
+                    found = zone.name;
+                    break;
+                }
+            }
+
+            document.getElementById('zone-detected').textContent = found;
+
+            console.log('Click:', { display: {x: displayX, y: displayY}, original: {x: origX, y: origY}, zone: found });
+        });
+    </script>
+</body>
+</html>

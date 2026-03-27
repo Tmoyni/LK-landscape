@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Garden Landscape Plan - 5243 Babcock</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Landscaping Plan - 5243 Babcock</h1>
+
+        <!-- Succulent Garden Walkway -->
+        <div class="popup succulent-garden">
+            <span class="close">&times;</span>
+            <h3>Succulent Garden Walkway</h3>
+            <div class="loading-message">Loading plant information...</div>
+            <ul class="plant-list" data-plants='["Hens and Chicks","Sedum","Ice Plant","Stonecrop","Prickly Pear Cactus","Aloe"]'>
+            </ul>
+        </div>
+
+        <!-- Wildflower Meadow -->
+        <div class="popup wildflower-meadow">
+            <span class="close">&times;</span>
+            <h3>Wildflower Meadow</h3>
+            <div class="loading-message">Loading plant information...</div>
+            <ul class="plant-list" data-plants='["Black Eyed Susan","Purple Coneflower","Butterfly Weed","Wild Bergamot","New England Aster","Lance Leaf Coreopsis","Prairie Blazing Star"]'>
+            </ul>
+        </div>
+
+        <!-- North Walkway -->
+        <div class="popup north-walkway">
+            <span class="close">&times;</span>
+            <h3>North Walkway Plantings</h3>
+            <div class="loading-message">Loading plant information...</div>
+            <ul class="plant-list" data-plants='["Creeping Thyme","Blue Star Creeper","Irish Moss","Pennsylvania Sedge","Little Bluestem","Prairie Dropseed"]'>
+            </ul>
+        </div>
+
+        <!-- South Walkway -->
+        <div class="popup south-walkway">
+            <span class="close">&times;</span>
+            <h3>South Walkway Border</h3>
+            <div class="loading-message">Loading plant information...</div>
+            <ul class="plant-list" data-plants='["Switchgrass","Indian Grass","Blue Grama","Sideoats Grama","Wild Rye","June Grass"]'>
+            </ul>
+        </div>
+
+        <!-- Garden Bed -->
+        <div class="popup garden-bed">
+            <span class="close">&times;</span>
+            <h3>Main Garden Bed</h3>
+            <div class="loading-message">Loading plant information...</div>
+            <ul class="plant-list" data-plants='["Serviceberry","Redbud","Oak Leaf Hydrangea","Fothergilla","Wild Geranium","Jacob\'s Ladder","Coral Bells","Solomon\'s Seal"]'>
+            </ul>
+        </div>
+
+        <div class="image-container">
+            <img src="garden-plan.webp" alt="Garden Landscape Plan" id="garden-image">
+
+            <!-- Canvas overlay for drawing clickable regions -->
+            <canvas id="overlay-canvas"></canvas>
+        </div>
+
+        <div class="instructions">
+            <p><strong>How to use:</strong> Hover over the garden plan to see highlighted zones, then click to view plant details.</p>
+            <p class="note">💡 Click on any plant name in the sidebar to see photos and more information!</p>
+            <p class="note-small">Plant information and photos are loaded from the iNaturalist database.</p>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>

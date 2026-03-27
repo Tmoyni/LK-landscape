@@ -1,0 +1,371 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: gray;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+}
+
+.image-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    background: #f5f5f5;
+}
+
+#garden-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 800px;
+    object-fit: contain;
+}
+
+#overlay-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Interactive elements */
+area {
+    cursor: pointer;
+}
+
+area:hover {
+    opacity: 0.8;
+}
+
+/* Popup styles */
+.popup {
+    position: fixed;
+    right: 0;
+    top: 0;
+    color: black;
+    height: 100vh;
+    width: 300px;
+    background-color: white;
+    padding: 40px;
+    overflow: scroll;
+    z-index: 1000;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+}
+
+.succulent-garden, .wildflower-meadow, .north-walkway, .south-walkway, .garden-bed {
+    display: none;
+}
+
+.show {
+    display: block;
+}
+
+.popup h3 {
+    color: #662D91;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    border-bottom: 2px solid #662D91;
+    padding-bottom: 10px;
+}
+
+.popup ul {
+    list-style: none;
+    padding: 0;
+}
+
+.popup ul li {
+    padding: 10px;
+    margin: 5px 0;
+    background: #f8f8f8;
+    border-left: 4px solid #662D91;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.popup ul li:hover {
+    background: #f0e6f6;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.close:hover {
+    color: #333;
+}
+
+
+/* Loading message */
+.loading-message {
+    display: none;
+    padding: 10px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+
+/* Plant item styles */
+.plant-item {
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 8px;
+    background: #f5f5f5;
+    transition: all 0.2s;
+    list-style: none;
+}
+
+.plant-item:hover {
+    background: #e8e8e8;
+    transform: translateX(4px);
+}
+
+.plant-item.loading {
+    opacity: 0.6;
+}
+
+.loading-spinner {
+    margin-left: 8px;
+    font-size: 14px;
+}
+
+.plant-info {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.plant-thumb {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.plant-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.plant-common-name {
+    font-size: 16px;
+    color: #333;
+}
+
+.plant-scientific-name {
+    font-size: 13px;
+    color: #666;
+}
+
+.plant-link {
+    font-size: 12px;
+    color: #662D91;
+    text-decoration: none;
+}
+
+.plant-link:hover {
+    text-decoration: underline;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #999;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.modal-image {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.modal h2 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.scientific-name {
+    color: #666;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.description {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.plant-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.stat {
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.stat strong {
+    color: #662D91;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.wiki-link {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #662D91;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.wiki-link:hover {
+    background: #4a1f6b;
+}
+
+/* Instructions section */
+.instructions {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    border-left: 4px solid #662D91;
+}
+
+.instructions p {
+    margin: 10px 0;
+    color: #555;
+    line-height: 1.6;
+}
+
+.instructions strong {
+    color: #333;
+}
+
+.instructions .note {
+    font-size: 14px;
+    color: #666;
+}
+
+.instructions .note-small {
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+}
+
+.instructions a {
+    color: #662D91;
+    text-decoration: none;
+}
+
+.instructions a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+    }
+
+    .popup {
+        min-width: 90%;
+        padding: 20px;
+    }
+
+    .modal-content {
+        padding: 20px;
+        max-width: 100%;
+    }
+
+    .plant-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .instructions {
+        font-size: 14px;
+    }
+}

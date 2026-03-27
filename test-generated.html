@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Generated Coordinates</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .image-wrapper {
+            position: relative;
+            border: 2px solid #ccc;
+            display: inline-block;
+        }
+        #test-img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+        .debug-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .debug-info div {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Coordinate System Test</h1>
+        <p>Click anywhere on the image to see coordinate information</p>
+
+        <div class="image-wrapper">
+            <img id="test-img" src="garden-plan.webp" alt="Test Image">
+        </div>
+
+        <div class="debug-info">
+            <div><strong>Image Natural Size:</strong> <span id="natural-size">-</span></div>
+            <div><strong>Image Display Size:</strong> <span id="display-size">-</span></div>
+            <div><strong>Scale Factor:</strong> <span id="scale-factor">-</span></div>
+            <div><strong>Click Display Coords:</strong> <span id="click-display">-</span></div>
+            <div><strong>Click Scaled Coords:</strong> <span id="click-scaled">-</span></div>
+            <div><strong>Expected ORIGINAL_WIDTH:</strong> <span id="expected-width">-</span></div>
+            <div><strong>Expected ORIGINAL_HEIGHT:</strong> <span id="expected-height">-</span></div>
+        </div>
+    </div>
+
+    <script>
+        const img = document.getElementById('test-img');
+
+        img.addEventListener('load', () => {
+            const naturalWidth = img.naturalWidth;
+            const naturalHeight = img.naturalHeight;
+            const rect = img.getBoundingClientRect();
+
+            document.getElementById('natural-size').textContent = `${naturalWidth} x ${naturalHeight}`;
+            document.getElementById('display-size').textContent = `${Math.round(rect.width)} x ${Math.round(rect.height)}`;
+            document.getElementById('scale-factor').textContent = `${(rect.width / naturalWidth).toFixed(4)}`;
+            document.getElementById('expected-width').textContent = naturalWidth;
+            document.getElementById('expected-height').textContent = naturalHeight;
+        });
+
+        img.addEventListener('click', (e) => {
+            const rect = img.getBoundingClientRect();
+            const naturalWidth = img.naturalWidth;
+            const naturalHeight = img.naturalHeight;
+
+            // Display coordinates
+            const displayX = Math.round(e.clientX - rect.left);
+            const displayY = Math.round(e.clientY - rect.top);
+
+            // Scaled coordinates (what should be used for zone comparison)
+            const scaleX = naturalWidth / rect.width;
+            const scaleY = naturalHeight / rect.height;
+            const scaledX = Math.round(displayX * scaleX);
+            const scaledY = Math.round(displayY * scaleY);
+
+            document.getElementById('click-display').textContent = `${displayX}, ${displayY}`;
+            document.getElementById('click-scaled').textContent = `${scaledX}, ${scaledY}`;
+
+            console.log('Click info:', {
+                display: { x: displayX, y: displayY },
+                scaled: { x: scaledX, y: scaledY },
+                rect: { width: rect.width, height: rect.height },
+                natural: { width: naturalWidth, height: naturalHeight },
+                scale: { x: scaleX, y: scaleY }
+            });
+        });
+    </script>
+</body>
+</html>

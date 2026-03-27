@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .image-wrapper {
+            position: relative;
+            width: 100%;
+            border: 2px solid #ccc;
+        }
+        #garden-img {
+            width: 100%;
+            display: block;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+        .zone-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-left: 4px solid #662D91;
+            display: none;
+        }
+        .zone-info.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simple Click Test</h1>
+        <p>Click anywhere on the image. If zones are mapped correctly, you'll see which zone you clicked.</p>
+
+        <div class="image-wrapper">
+            <img id="garden-img" src="garden-plan.webp" alt="Garden Plan">
+        </div>
+
+        <div class="info">
+            <strong>Click coordinates:</strong> <span id="coords">Click on the image</span><br>
+            <strong>Zone clicked:</strong> <span id="zone-name">None</span>
+        </div>
+
+        <div id="zone-details" class="zone-info">
+            <h3 id="zone-title"></h3>
+            <p id="zone-plants"></p>
+        </div>
+    </div>
+
+    <script>
+        // Image dimensions
+        const ORIGINAL_WIDTH = 1500;
+        const ORIGINAL_HEIGHT = 1034;
+
+        // Zones with coordinates and plant data
+        const zones = {
+            'succulent-garden': {
+                coords: [1129,225,1192,230,1206,275,1211,356,1211,409,1184,495,1133,584,1118,587,1106,572,1106,547,1154,477,1162,435,1162,396,1167,339,1161,300,1133,274,1122,259],
+                name: 'Succulent Garden Walkway',
+                plants: ['Hens and Chicks', 'Sedum', 'Ice Plant']
+            },
+            'wildflower-meadow': {
+                coords: [1329,201,1398,198,1393,656,1322,693],
+                name: 'Wildflower Meadow',
+                plants: ['Black Eyed Susan', 'Purple Coneflower', 'Butterfly Weed']
+            },
+            'north-walkway': {
+                coords: [501,230,806,238,804,283,511,280],
+                name: 'North Walkway',
+                plants: ['Creeping Thyme', 'Blue Star Creeper']
+            },
+            'south-walkway': {
+                coords: [386,759,892,759,1018,755,1087,777,1092,825,481,817,481,795,453,777],
+                name: 'South Walkway',
+                plants: ['Switchgrass', 'Indian Grass']
+            },
+            'garden-bed': {
+                coords: [119,333,164,353,176,494,197,543,156,690,115,719],
+                name: 'Main Garden Bed',
+                plants: ['Serviceberry', 'Redbud', 'Oak Leaf Hydrangea']
+            }
+        };
+
+        // Point in polygon test
+        function isPointInPolygon(point, polygon) {
+            let x = point.x, y = point.y;
+            let inside = false;
+
+            for (let i = 0, j = polygon.length - 2; i < polygon.length; i += 2) {
+                let xi = polygon[i], yi = polygon[i + 1];
+                let xj = polygon[j], yj = polygon[j + 1];
+
+                let intersect = ((yi > y) !== (yj > y))
+                    && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+
+                j = i;
+            }
+
+            return inside;
+        }
+
+        // Handle clicks
+        const img = document.getElementById('garden-img');
+        const coordsEl = document.getElementById('coords');
+        const zoneNameEl = document.getElementById('zone-name');
+        const zoneDetails = document.getElementById('zone-details');
+        const zoneTitle = document.getElementById('zone-title');
+        const zonePlants = document.getElementById('zone-plants');
+
+        img.addEventListener('click', (e) => {
+            const rect = img.getBoundingClientRect();
+
+            // Get click position relative to image
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            // Scale to original image coordinates
+            const scaleX = ORIGINAL_WIDTH / rect.width;
+            const scaleY = ORIGINAL_HEIGHT / rect.height;
+
+            const origX = Math.round(clickX * scaleX);
+            const origY = Math.round(clickY * scaleY);
+
+            coordsEl.textContent = `Display: (${Math.round(clickX)}, ${Math.round(clickY)}) → Original: (${origX}, ${origY})`;
+
+            // Check which zone was clicked
+            const point = { x: origX, y: origY };
+            let foundZone = null;
+
+            for (const [key, zone] of Object.entries(zones)) {
+                if (isPointInPolygon(point, zone.coords)) {
+                    foundZone = zone;
+                    break;
+                }
+            }
+
+            if (foundZone) {
+                zoneNameEl.textContent = foundZone.name;
+                zoneNameEl.style.color = '#28a745';
+                zoneTitle.textContent = foundZone.name;
+                zonePlants.textContent = 'Plants: ' + foundZone.plants.join(', ');
+                zoneDetails.classList.add('active');
+            } else {
+                zoneNameEl.textContent = 'None (clicked outside zones)';
+                zoneNameEl.style.color = '#dc3545';
+                zoneDetails.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

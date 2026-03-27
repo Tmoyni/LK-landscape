@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Debug - Click Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        #canvas-container {
+            position: relative;
+            margin: 20px 0;
+            border: 2px solid #ccc;
+            display: inline-block;
+        }
+        #test-canvas {
+            max-width: 100%;
+            display: block;
+            cursor: crosshair;
+        }
+        .info {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .info div {
+            margin: 5px 0;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Canvas Click Debug</h1>
+        <p>Upload an image and click on it to see how coordinates are captured</p>
+
+        <input type="file" id="file-input" accept="image/*">
+
+        <div id="canvas-container" style="display: none;">
+            <canvas id="test-canvas"></canvas>
+        </div>
+
+        <div class="info">
+            <div><strong>Canvas Internal Size:</strong> <span id="canvas-size">-</span></div>
+            <div><strong>Canvas Display Size:</strong> <span id="display-size">-</span></div>
+            <div><strong>Scale Factor:</strong> <span id="scale-factor">-</span></div>
+            <hr>
+            <div><strong>Last Click (display coords):</strong> <span id="click-display">-</span></div>
+            <div><strong>Last Click (scaled coords):</strong> <span id="click-scaled">-</span></div>
+            <div><strong>These scaled coords would be stored:</strong> <span id="stored-coords">-</span></div>
+        </div>
+
+        <div class="info" style="background: #fff3cd;">
+            <h3>What should happen:</h3>
+            <p>1. The canvas internal size should match the image's natural dimensions</p>
+            <p>2. The canvas might be displayed smaller (CSS max-width: 100%)</p>
+            <p>3. When you click, it scales from display coords to canvas coords</p>
+            <p>4. The scaled coords are what get stored in the zone</p>
+            <p>5. In the client view, these same coords should work with the same image dimensions</p>
+        </div>
+    </div>
+
+    <script>
+        let canvas = document.getElementById('test-canvas');
+        let ctx = canvas.getContext('2d');
+        let currentImage = null;
+
+        document.getElementById('file-input').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    currentImage = img;
+                    setupCanvas();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function setupCanvas() {
+            document.getElementById('canvas-container').style.display = 'block';
+
+            // Set canvas size to match image (same as admin.js)
+            canvas.width = currentImage.width;
+            canvas.height = currentImage.height;
+
+            // Draw image
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(currentImage, 0, 0);
+
+            // Update info
+            const rect = canvas.getBoundingClientRect();
+            document.getElementById('canvas-size').textContent =
+                `${canvas.width} x ${canvas.height}`;
+            document.getElementById('display-size').textContent =
+                `${Math.round(rect.width)} x ${Math.round(rect.height)}`;
+            document.getElementById('scale-factor').textContent =
+                `${(canvas.width / rect.width).toFixed(4)}`;
+        }
+
+        canvas.addEventListener('click', (e) => {
+            if (!currentImage) return;
+
+            const rect = canvas.getBoundingClientRect();
+
+            // This is exactly what admin.js does
+            const displayX = e.clientX - rect.left;
+            const displayY = e.clientY - rect.top;
+            const x = displayX * (canvas.width / rect.width);
+            const y = displayY * (canvas.height / rect.height);
+
+            document.getElementById('click-display').textContent =
+                `${Math.round(displayX)}, ${Math.round(displayY)}`;
+            document.getElementById('click-scaled').textContent =
+                `${Math.round(x)}, ${Math.round(y)}`;
+            document.getElementById('stored-coords').textContent =
+                `{ x: ${Math.round(x)}, y: ${Math.round(y)} }`;
+
+            // Draw a marker
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            console.log('Click:', {
+                display: { x: Math.round(displayX), y: Math.round(displayY) },
+                scaled: { x: Math.round(x), y: Math.round(y) },
+                canvasSize: { width: canvas.width, height: canvas.height },
+                displaySize: { width: rect.width, height: rect.height }
+            });
+        });
+
+        // Update display size on window resize
+        window.addEventListener('resize', () => {
+            if (currentImage) {
+                const rect = canvas.getBoundingClientRect();
+                document.getElementById('display-size').textContent =
+                    `${Math.round(rect.width)} x ${Math.round(rect.height)}`;
+                document.getElementById('scale-factor').textContent =
+                    `${(canvas.width / rect.width).toFixed(4)}`;
+            }
+        });
+    </script>
+</body>
+</html>

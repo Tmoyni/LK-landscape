@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Admin Output</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #662D91;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #4a1f6b;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Generate Client HTML Function</h1>
+        <p>This tests if the generateCompleteClientHTML function is accessible and working.</p>
+
+        <button onclick="testFunction()">Test Generate Function</button>
+
+        <div id="output"></div>
+    </div>
+
+    <script src="generate-client.js"></script>
+    <script>
+        async function testFunction() {
+            const output = document.getElementById('output');
+            output.textContent = 'Testing...\n\n';
+
+            // Check if function exists
+            if (typeof window.generateCompleteClientHTML === 'function') {
+                output.textContent += '✓ generateCompleteClientHTML function found\n\n';
+            } else {
+                output.textContent += '✗ generateCompleteClientHTML function NOT found\n';
+                return;
+            }
+
+            // Create test data
+            const testZones = [
+                {
+                    name: 'Test Zone',
+                    points: [
+                        { x: 100, y: 100 },
+                        { x: 200, y: 100 },
+                        { x: 200, y: 200 },
+                        { x: 100, y: 200 }
+                    ],
+                    plants: ['Test Plant 1', 'Test Plant 2']
+                }
+            ];
+
+            const testImageData = {
+                width: 1500,
+                height: 1034,
+                src: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+            };
+
+            try {
+                output.textContent += 'Calling generateCompleteClientHTML...\n';
+                const html = await window.generateCompleteClientHTML(testZones, testImageData, 'Test Project');
+
+                output.textContent += '✓ Function executed successfully\n\n';
+                output.textContent += 'Generated HTML length: ' + html.length + ' characters\n\n';
+
+                // Check for key elements
+                if (html.includes('ORIGINAL_WIDTH')) {
+                    output.textContent += '✓ Contains ORIGINAL_WIDTH\n';
+                } else {
+                    output.textContent += '✗ Missing ORIGINAL_WIDTH\n';
+                }
+
+                if (html.includes('ORIGINAL_HEIGHT')) {
+                    output.textContent += '✓ Contains ORIGINAL_HEIGHT\n';
+                } else {
+                    output.textContent += '✗ Missing ORIGINAL_HEIGHT\n';
+                }
+
+                if (html.includes('isPointInPolygon')) {
+                    output.textContent += '✓ Contains isPointInPolygon function\n';
+                } else {
+                    output.textContent += '✗ Missing isPointInPolygon function\n';
+                }
+
+                if (html.includes('searchPlantINaturalist')) {
+                    output.textContent += '✓ Contains plant API code\n';
+                } else {
+                    output.textContent += '✗ Missing plant API code\n';
+                }
+
+                if (html.includes('.popup')) {
+                    output.textContent += '✓ Contains CSS styles\n';
+                } else {
+                    output.textContent += '✗ Missing CSS styles\n';
+                }
+
+                // Show a snippet of the zones object
+                const zonesMatch = html.match(/const zones = \{[^}]+\}/s);
+                if (zonesMatch) {
+                    output.textContent += '\n✓ Zones object found:\n';
+                    output.textContent += zonesMatch[0].substring(0, 200) + '...\n';
+                } else {
+                    output.textContent += '\n✗ Zones object not found\n';
+                }
+
+                // Show ORIGINAL dimensions
+                const widthMatch = html.match(/const ORIGINAL_WIDTH = (\d+)/);
+                const heightMatch = html.match(/const ORIGINAL_HEIGHT = (\d+)/);
+                if (widthMatch && heightMatch) {
+                    output.textContent += `\n✓ Dimensions: ${widthMatch[1]} x ${heightMatch[1]}\n`;
+                }
+
+            } catch (error) {
+                output.textContent += '✗ Error: ' + error.message + '\n';
+                output.textContent += error.stack + '\n';
+            }
+        }
+    </script>
+</body>
+</html>
