@@ -3,72 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Garden Landscape Plan - 5243 Babcock</title>
+    <title>Interactive Garden Landscape Plan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Landscaping Plan - 5243 Babcock</h1>
+        <h1 id="page-title">Loading...</h1>
 
-        <!-- Succulent Garden Walkway -->
-        <div class="popup succulent-garden">
-            <span class="close">&times;</span>
-            <h3>Succulent Garden Walkway</h3>
-            <div class="loading-message">Loading plant information...</div>
-            <ul class="plant-list" data-plants='["Hens and Chicks","Sedum","Ice Plant","Stonecrop","Prickly Pear Cactus","Aloe"]'>
-            </ul>
-        </div>
+        <!-- Leaflet map container -->
+        <div id="map"></div>
 
-        <!-- Wildflower Meadow -->
-        <div class="popup wildflower-meadow">
-            <span class="close">&times;</span>
-            <h3>Wildflower Meadow</h3>
-            <div class="loading-message">Loading plant information...</div>
-            <ul class="plant-list" data-plants='["Black Eyed Susan","Purple Coneflower","Butterfly Weed","Wild Bergamot","New England Aster","Lance Leaf Coreopsis","Prairie Blazing Star"]'>
-            </ul>
-        </div>
+        <!-- Zone list (primary navigation) — populated dynamically -->
+        <nav class="zone-nav" id="zone-nav" aria-label="Garden zones"></nav>
 
-        <!-- North Walkway -->
-        <div class="popup north-walkway">
-            <span class="close">&times;</span>
-            <h3>North Walkway Plantings</h3>
-            <div class="loading-message">Loading plant information...</div>
-            <ul class="plant-list" data-plants='["Creeping Thyme","Blue Star Creeper","Irish Moss","Pennsylvania Sedge","Little Bluestem","Prairie Dropseed"]'>
-            </ul>
-        </div>
+        <!-- Popup panels — populated dynamically -->
+        <div id="popups-container"></div>
 
-        <!-- South Walkway -->
-        <div class="popup south-walkway">
-            <span class="close">&times;</span>
-            <h3>South Walkway Border</h3>
-            <div class="loading-message">Loading plant information...</div>
-            <ul class="plant-list" data-plants='["Switchgrass","Indian Grass","Blue Grama","Sideoats Grama","Wild Rye","June Grass"]'>
-            </ul>
-        </div>
-
-        <!-- Garden Bed -->
-        <div class="popup garden-bed">
-            <span class="close">&times;</span>
-            <h3>Main Garden Bed</h3>
-            <div class="loading-message">Loading plant information...</div>
-            <ul class="plant-list" data-plants='["Serviceberry","Redbud","Oak Leaf Hydrangea","Fothergilla","Wild Geranium","Jacob\'s Ladder","Coral Bells","Solomon\'s Seal"]'>
-            </ul>
-        </div>
-
-        <div class="image-container">
-            <img src="garden-plan.webp" alt="Garden Landscape Plan" id="garden-image">
-
-            <!-- Canvas overlay for drawing clickable regions -->
-            <canvas id="overlay-canvas"></canvas>
-        </div>
+        <!-- Mobile bottom sheet backdrop -->
+        <div class="bottom-sheet-backdrop" id="backdrop"></div>
 
         <div class="instructions">
-            <p><strong>How to use:</strong> Hover over the garden plan to see highlighted zones, then click to view plant details.</p>
-            <p class="note">💡 Click on any plant name in the sidebar to see photos and more information!</p>
+            <p><strong>How to use:</strong> Tap a zone on the map or click a zone name above to see plant details.</p>
+            <p class="note">Click on any plant in the sidebar to see photos and more information!</p>
             <p class="note-small">Plant information and photos are loaded from the iNaturalist database.</p>
         </div>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module" src="script.js"></script>
 </body>
 </html>

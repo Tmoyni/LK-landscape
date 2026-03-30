@@ -4,7 +4,7 @@
   "description": "This project allows clients to click on different regions of a garden plan image to view plant information.",
   "main": "script.js",
   "scripts": {
-    "dev": "browser-sync start --server --files '*.html, *.css, *.js'",
+    "dev": "node save-server.js & browser-sync start --server --files '*.html, *.css, *.js, zones.json'",
     "build": "echo 'No build needed for static site'",
     "preview": "browser-sync start --server"
   },

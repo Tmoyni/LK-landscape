@@ -1,261 +1,291 @@
 import { searchPlantINaturalist, showPlantModal } from './plant-api.js';
 
-const popups = document.querySelectorAll(".popup");
-
-// Store original image dimensions and zone coordinates
-const ORIGINAL_WIDTH = 1500;   // Actual image width
-const ORIGINAL_HEIGHT = 1034;  // Actual image height
-
-// Define zones with their coordinates (from image-map.net)
-const zones = {
-    'succulent-garden': {
-        coords: [1129,225,1192,230,1206,275,1211,356,1211,409,1184,495,1133,584,1118,587,1106,572,1106,547,1154,477,1162,435,1162,396,1167,339,1161,300,1133,274,1122,259],
-        name: 'Succulent Garden Walkway'
-    },
-    'wildflower-meadow': {
-        coords: [1329,201,1398,198,1393,656,1322,693],
-        name: 'Wildflower Meadow'
-    },
-    'north-walkway': {
-        coords: [501,230,806,238,804,283,511,280],
-        name: 'North Walkway'
-    },
-    'south-walkway': {
-        coords: [386,759,892,759,1018,755,1087,777,1092,825,481,817,481,795,453,777],
-        name: 'South Walkway'
-    },
-    'garden-bed': {
-        coords: [119,333,164,353,176,494,197,543,156,690,115,719],
-        name: 'Garden Bed'
-    }
-};
-
-// Function to check if a point is inside a polygon
-function isPointInPolygon(point, polygon) {
-    let x = point.x, y = point.y;
-    let inside = false;
-
-    for (let i = 0, j = polygon.length - 2; i < polygon.length; i += 2) {
-        let xi = polygon[i], yi = polygon[i + 1];
-        let xj = polygon[j], yj = polygon[j + 1];
-
-        let intersect = ((yi > y) !== (yj > y))
-            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-        if (intersect) inside = !inside;
-
-        j = i;
-    }
-
-    return inside;
+// ── Helpers ──────────────────────────────────────────────
+function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
 }
 
-// Function to get scaled coordinates
-function getScaledPoint(clientX, clientY, img) {
-    const rect = img.getBoundingClientRect();
+// CRS.Simple is Y-up (cartesian). Image coords are Y-down.
+// So we need to invert Y: [imageHeight - y, x]
+let _imageHeight = 0; // set during init
 
-    // Get click position relative to image
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-
-    // Scale to original image coordinates
-    const scaleX = ORIGINAL_WIDTH / rect.width;
-    const scaleY = ORIGINAL_HEIGHT / rect.height;
-
-    return {
-        x: x * scaleX,
-        y: y * scaleY
-    };
+function coordsToLatLng(flatCoords) {
+    const pairs = [];
+    for (let i = 0; i < flatCoords.length; i += 2) {
+        pairs.push([_imageHeight - flatCoords[i + 1], flatCoords[i]]); // [H - y, x]
+    }
+    return pairs;
 }
 
-// Function to create enhanced plant item with API data
-async function createEnhancedPlantItem(plantName) {
-    const li = document.createElement('li');
-    li.className = 'plant-item loading';
-    li.innerHTML = `
-        <span class="plant-name">${plantName}</span>
-        <span class="loading-spinner">⏳</span>
-    `;
-
-    // Fetch plant data from API
+// ── Load zone data and build the page ────────────────────
+async function init() {
+    let data;
     try {
-        const plantData = await searchPlantINaturalist(plantName);
-
-        if (plantData && plantData.image) {
-            li.className = 'plant-item loaded';
-            li.innerHTML = `
-                <div class="plant-info">
-                    <img src="${plantData.image}" alt="${plantName}" class="plant-thumb">
-                    <div class="plant-details">
-                        <strong class="plant-common-name">${plantData.commonName || plantName}</strong>
-                        ${plantData.scientificName ? `<em class="plant-scientific-name">${plantData.scientificName}</em>` : ''}
-                    </div>
-                </div>
-            `;
-
-            // Make it clickable to show more details
-            li.style.cursor = 'pointer';
-            li.addEventListener('click', () => showPlantModal(plantData));
-        } else {
-            // Fallback if no image data
-            li.className = 'plant-item';
-            li.innerHTML = `<span class="plant-name">${plantName}</span>`;
-        }
-    } catch (error) {
-        console.error(`Error loading ${plantName}:`, error);
-        // Fallback on error
-        li.className = 'plant-item';
-        li.innerHTML = `<span class="plant-name">${plantName}</span>`;
+        const res = await fetch('zones.json');
+        if (!res.ok) throw new Error(`Failed to load zones.json: ${res.status}`);
+        data = await res.json();
+    } catch (e) {
+        console.error(e);
+        document.getElementById('page-title').textContent = 'Error loading garden plan data.';
+        return;
     }
 
-    return li;
+    const { projectName, imageWidth, imageHeight, imageSrc, zones } = data;
+    _imageHeight = imageHeight;
+
+    // Set page title
+    document.getElementById('page-title').textContent = projectName;
+    document.title = projectName;
+
+    // ── Build popup HTML and nav buttons ─────────────────
+    const popupsContainer = document.getElementById('popups-container');
+    const zoneNav = document.getElementById('zone-nav');
+
+    for (const [key, zone] of Object.entries(zones)) {
+        // Nav button
+        const btn = document.createElement('button');
+        btn.className = 'zone-pill';
+        btn.dataset.zone = key;
+        btn.textContent = zone.name;
+        zoneNav.appendChild(btn);
+
+        // Popup panel
+        const popup = document.createElement('div');
+        popup.className = `popup ${key}`;
+        popup.setAttribute('role', 'complementary');
+        popup.setAttribute('aria-label', `${zone.name} plants`);
+        popup.innerHTML = `
+            <span class="close" aria-label="Close panel">&times;</span>
+            <h3>${escapeHtml(zone.name)}</h3>
+            <div class="loading-message">Loading plant information...</div>
+            <ul class="plant-list" data-plants='${JSON.stringify(zone.plants)}'></ul>
+        `;
+        popupsContainer.appendChild(popup);
+    }
+
+    // ── Leaflet Map ─────────────────────────────────────
+    const bounds = [[0, 0], [imageHeight, imageWidth]];
+
+    const map = L.map('map', {
+        crs: L.CRS.Simple,
+        minZoom: -2,
+        maxZoom: 2,
+        zoomControl: false,
+        attributionControl: false,
+        scrollWheelZoom: false,
+        maxBounds: bounds,
+        maxBoundsViscosity: 1.0
+    });
+
+    L.imageOverlay(imageSrc, bounds).addTo(map);
+    map.fitBounds(bounds);
+
+    // ── Zone Polygons ───────────────────────────────────
+    const defaultStyle = {
+        color: 'rgba(40, 53, 41, 0.4)',
+        weight: 2,
+        fillColor: 'rgba(40, 53, 41, 0.05)',
+        fillOpacity: 1
+    };
+    const hoverStyle = {
+        fillColor: 'rgba(201, 125, 74, 0.25)',
+        fillOpacity: 1,
+        color: 'rgba(201, 125, 74, 0.8)',
+        weight: 2
+    };
+    const activeStyle = {
+        fillColor: 'rgba(201, 125, 74, 0.3)',
+        fillOpacity: 1,
+        color: 'rgba(201, 125, 74, 0.9)',
+        weight: 3
+    };
+
+    const polygonLayers = {};
+    let activeZoneKey = null;
+
+    for (const [key, zone] of Object.entries(zones)) {
+        const latlngs = coordsToLatLng(zone.coords);
+        const polygon = L.polygon(latlngs, defaultStyle).addTo(map);
+
+        polygon.on('click', () => showPopup(key));
+        polygon.on('mouseover', () => {
+            if (activeZoneKey !== key) polygon.setStyle(hoverStyle);
+        });
+        polygon.on('mouseout', () => {
+            if (activeZoneKey !== key) polygon.setStyle(defaultStyle);
+        });
+
+        polygonLayers[key] = polygon;
+    }
+
+    // ── Popups / Panels ─────────────────────────────────
+    const popups = popupsContainer.querySelectorAll('.popup');
+
+    function showPopup(zoneKey) {
+        if (activeZoneKey && polygonLayers[activeZoneKey]) {
+            polygonLayers[activeZoneKey].setStyle(defaultStyle);
+        }
+        popups.forEach(p => p.classList.remove('show'));
+
+        const popup = popupsContainer.querySelector(`.popup.${zoneKey}`);
+        if (popup) {
+            popup.classList.add('show');
+            loadPlantData(popup);
+            activeZoneKey = zoneKey;
+            polygonLayers[zoneKey].setStyle(activeStyle);
+
+            document.querySelectorAll('.zone-pill').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.zone === zoneKey);
+            });
+            document.getElementById('backdrop').classList.add('show');
+        }
+    }
+
+    function closeAllPopups() {
+        popups.forEach(p => p.classList.remove('show'));
+        document.getElementById('backdrop').classList.remove('show');
+        document.querySelectorAll('.zone-pill').forEach(btn => btn.classList.remove('active'));
+        if (activeZoneKey && polygonLayers[activeZoneKey]) {
+            polygonLayers[activeZoneKey].setStyle(defaultStyle);
+        }
+        activeZoneKey = null;
+    }
+
+    // Close buttons (delegated since popups are dynamic)
+    popupsContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('close')) closeAllPopups();
+    });
+    document.getElementById('backdrop').addEventListener('click', closeAllPopups);
+
+    // ── Zone Nav ────────────────────────────────────────
+    zoneNav.addEventListener('click', (e) => {
+        const btn = e.target.closest('.zone-pill');
+        if (!btn) return;
+        const zoneKey = btn.dataset.zone;
+        showPopup(zoneKey);
+        if (polygonLayers[zoneKey]) {
+            map.panTo(polygonLayers[zoneKey].getBounds().getCenter());
+        }
+    });
+
+    zoneNav.addEventListener('mouseover', (e) => {
+        const btn = e.target.closest('.zone-pill');
+        if (!btn) return;
+        const zoneKey = btn.dataset.zone;
+        if (activeZoneKey !== zoneKey && polygonLayers[zoneKey]) {
+            polygonLayers[zoneKey].setStyle(hoverStyle);
+        }
+    });
+
+    zoneNav.addEventListener('mouseout', (e) => {
+        const btn = e.target.closest('.zone-pill');
+        if (!btn) return;
+        const zoneKey = btn.dataset.zone;
+        if (activeZoneKey !== zoneKey && polygonLayers[zoneKey]) {
+            polygonLayers[zoneKey].setStyle(defaultStyle);
+        }
+    });
+
+    // ── First-Visit Hint ────────────────────────────────
+    for (const polygon of Object.values(polygonLayers)) {
+        polygon.setStyle({ fillColor: 'rgba(201, 125, 74, 0.2)', fillOpacity: 1 });
+    }
+
+    const hint = document.createElement('div');
+    hint.className = 'first-visit-hint';
+    hint.textContent = 'Tap a colored area to see plants, or use the zone list below.';
+    document.getElementById('map').appendChild(hint);
+
+    const dismiss = () => {
+        hint.classList.add('fade-out');
+        setTimeout(() => hint.remove(), 300);
+        for (const [k, polygon] of Object.entries(polygonLayers)) {
+            if (k !== activeZoneKey) polygon.setStyle(defaultStyle);
+        }
+        map.off('click', dismiss);
+    };
+
+    setTimeout(() => map.on('click', dismiss), 100);
+    zoneNav.addEventListener('click', dismiss, { once: true });
+    setTimeout(dismiss, 5000);
 }
 
-// Function to load plant data into a popup
+// ── Plant Data Loading ───────────────────────────────────
 async function loadPlantData(popup) {
     const plantList = popup.querySelector('.plant-list');
     const loadingMessage = popup.querySelector('.loading-message');
 
-    // Check if already loaded
     if (!plantList || plantList.dataset.loaded === 'true') {
         if (loadingMessage) loadingMessage.style.display = 'none';
         return;
     }
 
-    // Show loading message
-    if (loadingMessage) loadingMessage.style.display = 'block';
-
-    // Get plant names from data attribute
-    const plantNames = JSON.parse(plantList.dataset.plants);
-
-    // Clear existing items
-    plantList.innerHTML = '';
-
-    // Create enhanced items with API data
-    for (const name of plantNames) {
-        const item = await createEnhancedPlantItem(name);
-        plantList.appendChild(item);
+    let plantNames;
+    try {
+        plantNames = JSON.parse(plantList.dataset.plants);
+    } catch (e) {
+        console.error('Failed to parse plant data:', e);
+        if (loadingMessage) loadingMessage.textContent = 'Could not load plant information.';
+        return;
     }
 
-    // Hide loading message and mark as loaded
+    plantList.innerHTML = '';
+
+    // Show skeleton cards immediately
+    const skeletonItems = plantNames.map(() => {
+        const li = document.createElement('li');
+        li.className = 'plant-item skeleton';
+        li.innerHTML = `
+            <div class="plant-info">
+                <div class="plant-thumb-skeleton"></div>
+                <div class="plant-details">
+                    <div class="skeleton-text skeleton-text-name"></div>
+                    <div class="skeleton-text skeleton-text-sci"></div>
+                </div>
+            </div>
+        `;
+        plantList.appendChild(li);
+        return li;
+    });
+
     if (loadingMessage) loadingMessage.style.display = 'none';
+
+    const results = await Promise.allSettled(
+        plantNames.map(name => searchPlantINaturalist(name))
+    );
+
+    results.forEach((result, i) => {
+        const li = skeletonItems[i];
+        const plantName = plantNames[i];
+
+        if (result.status === 'fulfilled' && result.value && result.value.image) {
+            const plantData = result.value;
+            const safeName = escapeHtml(plantData.commonName || plantName);
+            const safeSciName = escapeHtml(plantData.scientificName || '');
+            li.className = 'plant-item loaded';
+            li.innerHTML = `
+                <div class="plant-info">
+                    <img src="${escapeHtml(plantData.image)}" alt="${safeName}" class="plant-thumb"
+                         onerror="this.style.display='none'">
+                    <div class="plant-details">
+                        <strong class="plant-common-name">${safeName}</strong>
+                        ${safeSciName ? `<em class="plant-scientific-name">${safeSciName}</em>` : ''}
+                    </div>
+                </div>
+            `;
+            li.style.cursor = 'pointer';
+            li.addEventListener('click', () => showPlantModal(plantData));
+        } else {
+            li.className = 'plant-item';
+            li.innerHTML = `<span class="plant-name">${escapeHtml(plantName)}</span>`;
+        }
+    });
+
     plantList.dataset.loaded = 'true';
 }
 
-// Function to show a specific popup
-function showPopup(zoneKey) {
-    const popup = document.querySelector(`.popup.${zoneKey}`);
-    if (popup) {
-        popups.forEach(p => p.classList.remove('show'));
-        popup.classList.add('show');
-        loadPlantData(popup);
-    }
-}
-
-// Set up click handler on the image
-const gardenImage = document.getElementById('garden-image');
-if (gardenImage) {
-    gardenImage.addEventListener('click', (e) => {
-        // Get scaled point
-        const point = getScaledPoint(e.clientX, e.clientY, gardenImage);
-
-        // Check which zone was clicked
-        let clickedZone = null;
-        for (const [zoneKey, zone] of Object.entries(zones)) {
-            if (isPointInPolygon(point, zone.coords)) {
-                clickedZone = zoneKey;
-                break;
-            }
-        }
-
-        if (clickedZone) {
-            showPopup(clickedZone);
-        } else {
-            // Clicked outside any zone - close popups
-            popups.forEach(p => p.classList.remove('show'));
-        }
-    });
-}
-
-// Close button functionality
-const closeButtons = document.querySelectorAll('.close');
-closeButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        popups.forEach(p => p.classList.remove('show'));
-    });
-});
-
-// Visual feedback for clickable regions using canvas
-const canvas = document.getElementById('overlay-canvas');
-const img = document.getElementById('garden-image');
-
-if (canvas && img) {
-    const ctx = canvas.getContext('2d');
-
-    // Resize canvas to match image
-    function resizeCanvas() {
-        const rect = img.getBoundingClientRect();
-        canvas.width = rect.width;
-        canvas.height = rect.height;
-        canvas.style.width = rect.width + 'px';
-        canvas.style.height = rect.height + 'px';
-    }
-
-    // Initial resize when image loads
-    if (img.complete) {
-        resizeCanvas();
-    }
-
-    img.addEventListener('load', resizeCanvas);
-    window.addEventListener('resize', () => {
-        resizeCanvas();
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    });
-
-    // Draw zones on canvas for hover effect
-    function drawZone(coords, highlight = false) {
-        const rect = img.getBoundingClientRect();
-        const scaleX = rect.width / ORIGINAL_WIDTH;
-        const scaleY = rect.height / ORIGINAL_HEIGHT;
-
-        ctx.beginPath();
-        ctx.moveTo(coords[0] * scaleX, coords[1] * scaleY);
-
-        for (let i = 2; i < coords.length; i += 2) {
-            ctx.lineTo(coords[i] * scaleX, coords[i + 1] * scaleY);
-        }
-
-        ctx.closePath();
-
-        if (highlight) {
-            ctx.fillStyle = 'rgba(102, 45, 145, 0.3)';
-            ctx.strokeStyle = 'rgba(102, 45, 145, 0.8)';
-            ctx.lineWidth = 2;
-            ctx.fill();
-            ctx.stroke();
-        }
-    }
-
-    // Hover effect
-    img.addEventListener('mousemove', (e) => {
-        const point = getScaledPoint(e.clientX, e.clientY, img);
-
-        resizeCanvas();
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Check if hovering over any zone
-        for (const [zoneKey, zone] of Object.entries(zones)) {
-            if (isPointInPolygon(point, zone.coords)) {
-                drawZone(zone.coords, true);
-                img.style.cursor = 'pointer';
-                return;
-            }
-        }
-
-        img.style.cursor = 'default';
-    });
-
-    img.addEventListener('mouseleave', () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        img.style.cursor = 'default';
-    });
-}
+// ── Start ────────────────────────────────────────────────
+init();

@@ -1,3 +1,90 @@
+/* ── Design Tokens (from DESIGN.md) ────────────────────── */
+:root {
+    /* Neutrals */
+    --color-cream:         #F2EDE8;
+    --color-blush:         #EDD8C8;
+    --color-sage-light:    #E5EBE3;
+    --color-white:         #FFFFFF;
+
+    /* Greens */
+    --color-forest:        #283529;
+    --color-forest-mid:    #2D3B2E;
+    --color-green-text:    #1A2820;
+
+    /* Accent */
+    --color-terracotta:    #C97D4A;
+    --color-terracotta-hover: #B56A38;
+
+    /* Text */
+    --color-text-dark:     #1A2820;
+    --color-text-body:     #4A4A4A;
+    --color-text-muted:    #888888;
+    --color-text-on-dark:  #FFFFFF;
+
+    /* UI utility */
+    --color-border:        #DDD6CE;
+    --color-skeleton:      #E8E2DC;
+    --color-surface:       #EDE8E3;
+    --color-overlay:       rgba(0, 0, 0, 0.2);
+
+    /* Semantic */
+    --color-bg:            var(--color-cream);
+    --color-bg-card:       var(--color-white);
+    --color-bg-panel:      var(--color-cream);
+    --color-primary:       var(--color-terracotta);
+    --color-primary-hover: var(--color-terracotta-hover);
+    --color-heading:       var(--color-text-dark);
+    --color-body:          var(--color-text-body);
+    --color-muted:         var(--color-text-muted);
+
+    /* Typography */
+    --font-heading: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+    --font-body:    'DM Sans', 'Inter', system-ui, sans-serif;
+
+    --font-size-hero:    56px;
+    --font-size-h1:      44px;
+    --font-size-h2:      36px;
+    --font-size-h3:      22px;
+    --font-size-h4:      18px;
+    --font-size-base:    15px;
+    --font-size-sm:      13px;
+    --font-size-xs:      12px;
+
+    --font-weight-regular:  400;
+    --font-weight-medium:   500;
+    --font-weight-semibold: 600;
+    --font-weight-bold:     700;
+
+    --line-height-tight:   1.15;
+    --line-height-heading: 1.3;
+    --line-height-body:    1.6;
+
+    /* Spacing */
+    --space-1:   4px;
+    --space-2:   8px;
+    --space-3:   12px;
+    --space-4:   16px;
+    --space-5:   20px;
+    --space-6:   24px;
+    --space-8:   32px;
+    --space-10:  40px;
+    --space-12:  48px;
+    --space-16:  64px;
+
+    /* Border radius */
+    --radius-sm:    8px;
+    --radius-md:    16px;
+    --radius-lg:    24px;
+    --radius-full:  9999px;
+
+    /* Elevation */
+    --shadow-card:   0 2px 12px rgba(40, 53, 41, 0.08), 0 1px 4px rgba(40, 53, 41, 0.04);
+    --shadow-hover:  0 8px 24px rgba(40, 53, 41, 0.12), 0 2px 8px rgba(40, 53, 41, 0.06);
+    --shadow-panel:  -4px 0 24px rgba(40, 53, 41, 0.10);
+    --shadow-sheet:  0 -4px 24px rgba(40, 53, 41, 0.10);
+}
+
+/* ── Reset ────────────────────────────────────────────── */
 * {
     margin: 0;
     padding: 0;
@@ -5,94 +92,121 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: gray;
-    padding: 20px;
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-body);
+    color: var(--color-body);
+    background-color: var(--color-bg);
+    padding: var(--space-5);
 }
 
+/* ── Layout ───────────────────────────────────────────── */
 .container {
     max-width: 1400px;
     margin: 0 auto;
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    background: var(--color-bg);
+    padding: var(--space-8);
 }
 
 h1 {
+    font-family: var(--font-heading);
     text-align: center;
-    color: #333;
-    margin-bottom: 30px;
-    font-size: 2.5em;
+    color: var(--color-heading);
+    margin-bottom: var(--space-6);
+    font-size: var(--font-size-h2);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-heading);
 }
 
-.image-container {
+/* ── Leaflet Map ──────────────────────────────────────── */
+#map {
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
-    border: 2px solid #ddd;
-    border-radius: 8px;
+    height: 600px;
+    margin: 0 auto var(--space-5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     overflow: hidden;
+    background: var(--color-sage-light);
     position: relative;
-    background: #f5f5f5;
 }
 
-#garden-image {
-    width: 100%;
-    height: auto;
-    display: block;
-    max-height: 800px;
-    object-fit: contain;
+.leaflet-control-attribution { display: none !important; }
+
+/* ── Zone Nav (primary navigation) ────────────────────── */
+.zone-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    justify-content: center;
+    margin-bottom: var(--space-6);
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-#overlay-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-}
-
-/* Interactive elements */
-area {
+.zone-pill {
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    background: var(--color-bg);
+    color: var(--color-body);
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
     cursor: pointer;
+    transition: all 150ms ease;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
 }
 
-area:hover {
-    opacity: 0.8;
+.zone-pill:hover {
+    background: var(--color-terracotta);
+    color: var(--color-text-on-dark);
+    border-color: var(--color-terracotta);
 }
 
-/* Popup styles */
+.zone-pill.active {
+    background: var(--color-forest);
+    color: var(--color-text-on-dark);
+    border-color: var(--color-forest);
+}
+
+.zone-pill:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* ── Popup / Panel (desktop sidebar) ──────────────────── */
 .popup {
     position: fixed;
     right: 0;
     top: 0;
-    color: black;
     height: 100vh;
-    width: 300px;
-    background-color: white;
-    padding: 40px;
-    overflow: scroll;
+    width: 320px;
+    background-color: var(--color-bg-panel);
+    padding: var(--space-12) var(--space-4) var(--space-4);
+    overflow-y: auto;
     z-index: 1000;
-    box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+    box-shadow: var(--shadow-panel);
+    transform: translateX(100%);
     transition: transform 0.3s ease;
 }
 
-.succulent-garden, .wildflower-meadow, .north-walkway, .south-walkway, .garden-bed {
-    display: none;
-}
-
-.show {
-    display: block;
+.popup.show {
+    transform: translateX(0);
 }
 
 .popup h3 {
-    color: #662D91;
-    margin-bottom: 20px;
-    font-size: 1.5em;
-    border-bottom: 2px solid #662D91;
-    padding-bottom: 10px;
+    font-family: var(--font-heading);
+    color: var(--color-heading);
+    margin-bottom: var(--space-5);
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-heading);
+    border-bottom: 2px solid var(--color-terracotta);
+    padding-bottom: var(--space-3);
 }
 
 .popup ul {
@@ -100,79 +214,60 @@ area:hover {
     padding: 0;
 }
 
-.popup ul li {
-    padding: 10px;
-    margin: 5px 0;
-    background: #f8f8f8;
-    border-left: 4px solid #662D91;
-    border-radius: 4px;
-    transition: background 0.2s ease;
-}
-
-.popup ul li:hover {
-    background: #f0e6f6;
-}
-
+/* ── Close Button ─────────────────────────────────────── */
 .close {
     position: absolute;
-    top: 10px;
-    right: 15px;
+    top: var(--space-3);
+    right: var(--space-4);
     font-size: 28px;
     font-weight: bold;
-    color: #999;
+    color: var(--color-muted);
     cursor: pointer;
-    transition: color 0.2s ease;
+    transition: color 200ms ease;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
 }
 
 .close:hover {
-    color: #333;
+    color: var(--color-body);
 }
 
-
-/* Loading message */
-.loading-message {
-    display: none;
-    padding: 10px;
-    text-align: center;
-    color: #666;
-    font-style: italic;
-}
-
-/* Plant item styles */
+/* ── Plant Items ──────────────────────────────────────── */
 .plant-item {
-    padding: 12px;
-    margin: 8px 0;
-    border-radius: 8px;
-    background: #f5f5f5;
-    transition: all 0.2s;
+    padding: var(--space-3);
+    margin: var(--space-2) 0;
+    border-radius: var(--radius-md);
+    background: var(--color-bg-card);
+    box-shadow: var(--shadow-card);
+    transition: all 200ms ease;
     list-style: none;
+    min-height: 44px;
 }
 
 .plant-item:hover {
-    background: #e8e8e8;
-    transform: translateX(4px);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-hover);
 }
 
-.plant-item.loading {
-    opacity: 0.6;
-}
-
-.loading-spinner {
-    margin-left: 8px;
-    font-size: 14px;
+.plant-item.loaded {
+    cursor: pointer;
 }
 
 .plant-info {
     display: flex;
-    gap: 12px;
+    gap: var(--space-3);
     align-items: center;
 }
 
 .plant-thumb {
-    width: 60px;
-    height: 60px;
+    width: 64px;
+    height: 64px;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     flex-shrink: 0;
 }
 
@@ -180,22 +275,31 @@ area:hover {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--space-1);
 }
 
 .plant-common-name {
-    font-size: 16px;
-    color: #333;
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-heading);
 }
 
 .plant-scientific-name {
-    font-size: 13px;
-    color: #666;
+    font-size: var(--font-size-xs);
+    color: var(--color-muted);
+    font-style: italic;
+}
+
+.plant-name {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    color: var(--color-heading);
 }
 
 .plant-link {
-    font-size: 12px;
-    color: #662D91;
+    font-size: var(--font-size-xs);
+    color: var(--color-primary);
     text-decoration: none;
 }
 
@@ -203,7 +307,56 @@ area:hover {
     text-decoration: underline;
 }
 
-/* Modal styles */
+/* ── Skeleton Loading ─────────────────────────────────── */
+.plant-item.skeleton {
+    box-shadow: none;
+    background: var(--color-bg-card);
+}
+
+.plant-item.skeleton .plant-info {
+    pointer-events: none;
+}
+
+.plant-thumb-skeleton {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-sm);
+    background: var(--color-skeleton);
+    flex-shrink: 0;
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-text {
+    border-radius: var(--radius-sm);
+    background: var(--color-skeleton);
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-text-name {
+    width: 120px;
+    height: 15px;
+}
+
+.skeleton-text-sci {
+    width: 90px;
+    height: 12px;
+}
+
+@keyframes shimmer {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ── Loading Message ──────────────────────────────────── */
+.loading-message {
+    display: none;
+    padding: var(--space-3);
+    text-align: center;
+    color: var(--color-muted);
+    font-style: italic;
+}
+
+/* ── Modal ────────────────────────────────────────────── */
 .modal {
     display: none;
     position: fixed;
@@ -211,153 +364,244 @@ area:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(40, 53, 41, 0.7);
     z-index: 10000;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: var(--space-5);
 }
 
 .modal-content {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
+    background: var(--color-bg-panel);
+    padding: var(--space-8);
+    border-radius: var(--radius-lg);
     max-width: 600px;
     max-height: 80vh;
     overflow-y: auto;
     position: relative;
+    box-shadow: var(--shadow-hover);
 }
 
 .modal-close {
     position: absolute;
-    top: 15px;
-    right: 20px;
+    top: var(--space-4);
+    right: var(--space-5);
     font-size: 28px;
     cursor: pointer;
-    color: #999;
+    color: var(--color-muted);
     line-height: 1;
 }
 
 .modal-close:hover {
-    color: #333;
+    color: var(--color-body);
 }
 
 .modal-image {
     width: 100%;
     max-height: 300px;
     object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 20px;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-5);
 }
 
 .modal h2 {
-    color: #333;
-    margin-bottom: 10px;
+    font-family: var(--font-heading);
+    color: var(--color-heading);
+    margin-bottom: var(--space-3);
+    font-size: var(--font-size-h3);
+    line-height: var(--line-height-heading);
 }
 
 .scientific-name {
-    color: #666;
-    font-size: 18px;
-    margin-bottom: 15px;
+    color: var(--color-muted);
+    font-size: var(--font-size-h4);
+    font-style: italic;
+    margin-bottom: var(--space-4);
 }
 
 .description {
-    color: #555;
-    line-height: 1.6;
-    margin-bottom: 20px;
+    color: var(--color-body);
+    line-height: var(--line-height-body);
+    margin-bottom: var(--space-5);
 }
 
 .plant-stats {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    margin: 20px 0;
+    gap: var(--space-3);
+    margin: var(--space-5) 0;
 }
 
 .stat {
-    padding: 10px;
-    background: #f5f5f5;
-    border-radius: 6px;
-    font-size: 14px;
+    padding: var(--space-3);
+    background: var(--color-sage-light);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
 }
 
 .stat strong {
-    color: #662D91;
+    color: var(--color-heading);
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: var(--space-1);
+    font-weight: var(--font-weight-semibold);
 }
 
 .wiki-link {
     display: inline-block;
-    margin-top: 20px;
-    padding: 10px 20px;
-    background: #662D91;
-    color: white;
+    margin-top: var(--space-5);
+    padding: 12px 28px;
+    background: var(--color-primary);
+    color: var(--color-text-on-dark);
     text-decoration: none;
-    border-radius: 6px;
-    transition: background 0.2s;
+    border-radius: var(--radius-full);
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    transition: background 150ms ease;
 }
 
 .wiki-link:hover {
-    background: #4a1f6b;
+    background: var(--color-primary-hover);
 }
 
-/* Instructions section */
+/* ── First-Visit Hint ─────────────────────────────────── */
+.first-visit-hint {
+    position: absolute;
+    bottom: var(--space-4);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-forest);
+    color: var(--color-text-on-dark);
+    padding: var(--space-2) var(--space-5);
+    border-radius: var(--radius-full);
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    z-index: 1000;
+    pointer-events: none;
+    white-space: nowrap;
+    transition: opacity 0.3s ease;
+    box-shadow: var(--shadow-card);
+}
+
+.first-visit-hint.fade-out {
+    opacity: 0;
+}
+
+/* ── Mobile Bottom Sheet Backdrop ─────────────────────── */
+.bottom-sheet-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-overlay);
+    z-index: 999;
+}
+
+.bottom-sheet-backdrop.show {
+    display: block;
+}
+
+/* ── Instructions ─────────────────────────────────────── */
 .instructions {
-    margin-top: 30px;
-    padding: 20px;
-    background: #f5f5f5;
-    border-radius: 8px;
-    border-left: 4px solid #662D91;
+    margin-top: var(--space-8);
+    padding: var(--space-5);
+    background: var(--color-sage-light);
+    border-radius: var(--radius-md);
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .instructions p {
-    margin: 10px 0;
-    color: #555;
-    line-height: 1.6;
+    margin: var(--space-2) 0;
+    color: var(--color-body);
+    line-height: var(--line-height-body);
 }
 
 .instructions strong {
-    color: #333;
+    color: var(--color-heading);
 }
 
 .instructions .note {
-    font-size: 14px;
-    color: #666;
+    font-size: var(--font-size-sm);
+    color: var(--color-body);
 }
 
 .instructions .note-small {
-    font-size: 12px;
-    color: #999;
+    font-size: var(--font-size-xs);
+    color: var(--color-muted);
     font-style: italic;
 }
 
-.instructions a {
-    color: #662D91;
-    text-decoration: none;
-}
-
-.instructions a:hover {
-    text-decoration: underline;
-}
-
-/* Responsive */
+/* ── Responsive: Mobile Bottom Sheet ──────────────────── */
 @media (max-width: 768px) {
+    body {
+        padding: var(--space-2);
+    }
+
     .container {
-        padding: 15px;
+        padding: var(--space-4);
     }
 
     h1 {
-        font-size: 1.8em;
+        font-size: var(--font-size-h3);
+        margin-bottom: var(--space-4);
     }
 
+    #map {
+        height: 45vh;
+        border-radius: var(--radius-sm);
+        margin-bottom: var(--space-3);
+    }
+
+    .zone-nav {
+        margin-bottom: var(--space-3);
+    }
+
+    .zone-pill {
+        font-size: var(--font-size-xs);
+        padding: var(--space-2) var(--space-3);
+    }
+
+    /* Bottom sheet instead of sidebar */
     .popup {
-        min-width: 90%;
-        padding: 20px;
+        position: fixed;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        top: auto;
+        width: 100%;
+        height: auto;
+        min-height: 40vh;
+        max-height: 60vh;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        transform: translateY(100%);
+        padding: var(--space-4);
+        padding-top: var(--space-10);
+        box-shadow: var(--shadow-sheet);
+    }
+
+    .popup.show {
+        transform: translateY(0);
+    }
+
+    /* Bottom sheet handle */
+    .popup::before {
+        content: '';
+        position: absolute;
+        top: var(--space-3);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 4px;
+        background: var(--color-border);
+        border-radius: var(--radius-full);
     }
 
     .modal-content {
-        padding: 20px;
+        padding: var(--space-5);
         max-width: 100%;
     }
 
@@ -366,6 +610,13 @@ area:hover {
     }
 
     .instructions {
-        font-size: 14px;
+        font-size: var(--font-size-sm);
+    }
+
+    .first-visit-hint {
+        font-size: var(--font-size-xs);
+        white-space: normal;
+        text-align: center;
+        max-width: 80%;
     }
 }

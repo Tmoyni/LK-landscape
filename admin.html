@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Garden Plan Admin - Create Interactive Plans</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
     <link rel="stylesheet" href="admin-styles.css">
 </head>
 <body>
     <div class="admin-container">
-        <h1>🌿 Garden Plan Creator</h1>
+        <h1>Garden Plan Creator</h1>
         <p class="subtitle">Create interactive garden plans for your clients</p>
 
         <!-- Step 1: Upload Image -->
@@ -23,8 +27,8 @@
                     <p class="upload-hint">JPG, PNG, or WebP</p>
                 </label>
             </div>
-            <div id="image-preview-container" style="display: none;">
-                <canvas id="admin-canvas"></canvas>
+            <div id="map-container" style="display: none;">
+                <div id="admin-map"></div>
             </div>
         </section>
 
@@ -34,22 +38,11 @@
             <div class="instructions-box">
                 <p><strong>How to map zones:</strong></p>
                 <ol>
-                    <li>Click "Start New Zone" below</li>
-                    <li>Click points around the zone boundary on the image</li>
-                    <li>Click "Complete Zone" when done</li>
-                    <li>Give the zone a name and add plants</li>
+                    <li>Use the polygon tool (▣) on the left side of the map</li>
+                    <li>Click points around the zone boundary</li>
+                    <li>Click the first point again to close the polygon</li>
+                    <li>A dialog will ask you to name the zone and add plants</li>
                 </ol>
-            </div>
-
-            <div class="mapping-controls">
-                <button id="start-zone-btn" class="btn btn-primary">Start New Zone</button>
-                <button id="complete-zone-btn" class="btn btn-success" style="display: none;">Complete Zone</button>
-                <button id="cancel-zone-btn" class="btn btn-secondary" style="display: none;">Cancel</button>
-                <button id="clear-all-btn" class="btn btn-danger">Clear All Zones</button>
-            </div>
-
-            <div id="current-zone-info" style="display: none;">
-                <p>Click points on the image to outline the zone. Points: <span id="point-count">0</span></p>
             </div>
 
             <div id="zones-list">
@@ -58,31 +51,38 @@
             </div>
         </section>
 
-        <!-- Step 3: Generate & Download -->
+        <!-- Step 3: Generate & Export -->
         <section class="admin-section" id="generate-section" style="display: none;">
-            <h2>Step 3: Generate Client View</h2>
+            <h2>Step 3: Export Zone Data</h2>
             <div class="project-info">
-                <label for="project-name">Project Name (e.g., "5243 Babcock"):</label>
-                <input type="text" id="project-name" placeholder="Enter project name">
+                <label for="project-name">Project Name:</label>
+                <input type="text" id="project-name" placeholder="e.g., 5243 Babcock">
             </div>
 
-            <button id="preview-btn" class="btn btn-primary">Preview Client View</button>
-            <button id="download-btn" class="btn btn-success">Download Complete Package</button>
+            <div class="button-group">
+                <button id="export-json-btn" class="btn btn-primary">Save zones.json</button>
+                <button id="preview-btn" class="btn btn-success">Preview Client View</button>
+            </div>
+
+            <div id="export-output" style="display: none;">
+                <h3>Zone Data (paste into script.js)</h3>
+                <pre id="export-code"></pre>
+            </div>
 
             <div class="help-text">
-                <p><strong>What you'll get:</strong></p>
+                <p><strong>How it works:</strong></p>
                 <ul>
-                    <li>Interactive HTML file with your garden plan</li>
-                    <li>All necessary CSS and JavaScript files</li>
-                    <li>Ready to upload to a website or share directly</li>
+                    <li>If the save server is running (<code>node save-server.js</code>), zones save directly to the project</li>
+                    <li>If not, a <code>zones.json</code> file downloads — move it to the project folder</li>
+                    <li>The client view reads <code>zones.json</code> automatically on page load</li>
                 </ul>
             </div>
         </section>
 
         <!-- Zone Editor Modal -->
-        <div id="zone-modal" class="modal">
-            <div class="modal-content">
-                <span class="modal-close">&times;</span>
+        <div id="zone-modal" class="admin-modal">
+            <div class="admin-modal-content">
+                <span class="admin-modal-close">&times;</span>
                 <h2>Configure Zone</h2>
 
                 <div class="form-group">
@@ -103,7 +103,8 @@
         </div>
     </div>
 
-    <script src="generate-client.js"></script>
-    <script type="module" src="admin.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    <script src="admin.js"></script>
 </body>
 </html>

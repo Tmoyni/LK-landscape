@@ -1,0 +1,33 @@
+{
+    "projectName": "Landscaping Plan - 5243 Babcock",
+    "imageWidth": 1500,
+    "imageHeight": 1034,
+    "imageSrc": "garden-plan.webp",
+    "zones": {
+        "succulent-garden": {
+            "coords": [1129,225,1192,230,1206,275,1211,356,1211,409,1184,495,1133,584,1118,587,1106,572,1106,547,1154,477,1162,435,1162,396,1167,339,1161,300,1133,274,1122,259],
+            "name": "Succulent Garden Walkway",
+            "plants": ["Hens and Chicks","Sedum","Ice Plant","Stonecrop","Prickly Pear Cactus","Aloe"]
+        },
+        "wildflower-meadow": {
+            "coords": [1329,201,1398,198,1393,656,1322,693],
+            "name": "Wildflower Meadow",
+            "plants": ["Black Eyed Susan","Purple Coneflower","Butterfly Weed","Wild Bergamot","New England Aster","Lance Leaf Coreopsis","Prairie Blazing Star"]
+        },
+        "north-walkway": {
+            "coords": [501,230,806,238,804,283,511,280],
+            "name": "North Walkway Plantings",
+            "plants": ["Creeping Thyme","Blue Star Creeper","Irish Moss","Pennsylvania Sedge","Little Bluestem","Prairie Dropseed"]
+        },
+        "south-walkway": {
+            "coords": [386,759,892,759,1018,755,1087,777,1092,825,481,817,481,795,453,777],
+            "name": "South Walkway Border",
+            "plants": ["Switchgrass","Indian Grass","Blue Grama","Sideoats Grama","Wild Rye","June Grass"]
+        },
+        "garden-bed": {
+            "coords": [119,333,164,353,176,494,197,543,156,690,115,719],
+            "name": "Main Garden Bed",
+            "plants": ["Serviceberry","Redbud","Oak Leaf Hydrangea","Fothergilla","Wild Geranium","Jacob's Ladder","Coral Bells","Solomon's Seal"]
+        }
+    }
+}
