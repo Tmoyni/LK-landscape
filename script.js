@@ -265,8 +265,11 @@ async function loadPlantData(popup) {
         const plantName = plantNames[i];
 
         if (result.status === 'fulfilled' && result.value && result.value.image) {
-            const plantData = result.value;
-            const safeName = escapeHtml(plantData.commonName || plantName);
+            // Keep the designer's plant name as the title — the API's
+            // first-match common name can be a different species entirely
+            // (and turns "Sedum" + "Stonecrop" into duplicate cards).
+            const plantData = { ...result.value, commonName: plantName };
+            const safeName = escapeHtml(plantName);
             const safeSciName = escapeHtml(plantData.scientificName || '');
             li.className = 'plant-item loaded';
             li.innerHTML = `
