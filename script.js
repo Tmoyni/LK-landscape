@@ -61,8 +61,11 @@ async function init() {
             <span class="close" aria-label="Close panel">&times;</span>
             <h3>${escapeHtml(zone.name)}</h3>
             <div class="loading-message">Loading plant information...</div>
-            <ul class="plant-list" data-plants='${JSON.stringify(zone.plants)}'></ul>
+            <ul class="plant-list"></ul>
         `;
+        // Set via dataset, not template interpolation: plant names like
+        // "Jacob's Ladder" would terminate a quoted attribute early.
+        popup.querySelector('.plant-list').dataset.plants = JSON.stringify(zone.plants);
         popupsContainer.appendChild(popup);
     }
 
