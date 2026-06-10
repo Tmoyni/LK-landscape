@@ -144,12 +144,14 @@ async function init() {
                 btn.classList.toggle('active', btn.dataset.zone === zoneKey);
             });
             document.getElementById('backdrop').classList.add('show');
+            document.body.classList.add('panel-open');
         }
     }
 
     function closeAllPopups() {
         popups.forEach(p => p.classList.remove('show'));
         document.getElementById('backdrop').classList.remove('show');
+        document.body.classList.remove('panel-open');
         document.querySelectorAll('.zone-pill').forEach(btn => btn.classList.remove('active'));
         if (activeZoneKey && polygonLayers[activeZoneKey]) {
             polygonLayers[activeZoneKey].setStyle(defaultStyle);

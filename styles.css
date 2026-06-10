@@ -499,9 +499,9 @@ h1 {
     z-index: 999;
 }
 
-.bottom-sheet-backdrop.show {
-    display: block;
-}
+/* Backdrop is a mobile-only concept: on desktop it would sit over the
+   zone pills and map polygons, swallowing every click while a panel
+   is open. .show only takes effect inside the mobile media query. */
 
 /* ── Instructions ─────────────────────────────────────── */
 .instructions {
@@ -535,8 +535,23 @@ h1 {
     font-style: italic;
 }
 
+/* ── Desktop: keep zone pills clear of the open panel ─── */
+@media (min-width: 769px) {
+    .zone-nav {
+        transition: padding-right 0.3s ease;
+    }
+
+    body.panel-open .zone-nav {
+        padding-right: 340px;
+    }
+}
+
 /* ── Responsive: Mobile Bottom Sheet ──────────────────── */
 @media (max-width: 768px) {
+    .bottom-sheet-backdrop.show {
+        display: block;
+    }
+
     body {
         padding: var(--space-2);
     }
