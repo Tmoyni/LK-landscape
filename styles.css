@@ -216,6 +216,9 @@ h1 {
 
 /* ── Close Button ─────────────────────────────────────── */
 .close {
+    background: none;
+    border: none;
+    padding: 0;
     position: absolute;
     top: var(--space-3);
     right: var(--space-4);
@@ -255,6 +258,13 @@ h1 {
 
 .plant-item.loaded {
     cursor: pointer;
+}
+
+.plant-item:focus-visible,
+.close:focus-visible,
+.modal-close:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
 
 .plant-info {
@@ -383,6 +393,9 @@ h1 {
 }
 
 .modal-close {
+    background: none;
+    border: none;
+    padding: 0;
     position: absolute;
     top: var(--space-4);
     right: var(--space-5);

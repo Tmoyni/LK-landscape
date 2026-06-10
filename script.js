@@ -58,7 +58,7 @@ async function init() {
         popup.setAttribute('role', 'complementary');
         popup.setAttribute('aria-label', `${zone.name} plants`);
         popup.innerHTML = `
-            <span class="close" aria-label="Close panel">&times;</span>
+            <button class="close" aria-label="Close panel">&times;</button>
             <h3>${escapeHtml(zone.name)}</h3>
             <div class="loading-message">Loading plant information...</div>
             <ul class="plant-list"></ul>
@@ -164,6 +164,18 @@ async function init() {
         if (e.target.classList.contains('close')) closeAllPopups();
     });
     document.getElementById('backdrop').addEventListener('click', closeAllPopups);
+
+    // Escape closes the plant modal first if open, otherwise the panel.
+    // The modal's own Escape handling (plant-api.js) is idempotent with this.
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        const modal = document.getElementById('plant-modal');
+        if (modal && modal.style.display === 'flex') {
+            modal.style.display = 'none';
+            return;
+        }
+        closeAllPopups();
+    });
 
     // ── Zone Nav ────────────────────────────────────────
     zoneNav.addEventListener('click', (e) => {
@@ -285,7 +297,16 @@ async function loadPlantData(popup) {
                 </div>
             `;
             li.style.cursor = 'pointer';
+            li.tabIndex = 0;
+            li.setAttribute('role', 'button');
+            li.setAttribute('aria-label', `View details for ${plantData.commonName}`);
             li.addEventListener('click', () => showPlantModal(plantData));
+            li.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    showPlantModal(plantData);
+                }
+            });
         } else {
             li.className = 'plant-item';
             li.innerHTML = `<span class="plant-name">${escapeHtml(plantName)}</span>`;

@@ -256,11 +256,18 @@ function showPlantModal(plantData) {
         modal.id = 'plant-modal';
         modal.className = 'modal';
         document.body.appendChild(modal);
+        // Registered once at creation; idempotent with the page-level
+        // Escape handler in script.js.
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.style.display === 'flex') {
+                modal.style.display = 'none';
+            }
+        });
     }
 
     modal.innerHTML = `
         <div class="modal-content">
-            <span class="modal-close">&times;</span>
+            <button class="modal-close" aria-label="Close plant details">&times;</button>
             <div class="modal-body">
                 ${plantData.image ? `<img src="${plantData.image}" alt="${plantData.commonName}" class="modal-image">` : ''}
                 <h2>${plantData.commonName}</h2>
