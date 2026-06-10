@@ -86,6 +86,18 @@ async function init() {
     L.imageOverlay(imageSrc, bounds).addTo(map);
     map.fitBounds(bounds);
 
+    // Re-fit the plan when the viewport changes (e.g. phone rotation) —
+    // Leaflet keeps the stale zoom/center otherwise and the plan renders
+    // cropped until a manual reload.
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            map.invalidateSize();
+            map.fitBounds(bounds);
+        }, 150);
+    });
+
     // ── Zone Polygons ───────────────────────────────────
     const defaultStyle = {
         color: 'rgba(40, 53, 41, 0.4)',
