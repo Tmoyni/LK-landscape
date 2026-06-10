@@ -1,5 +1,34 @@
 # Testing Your Interactive Garden Plan
 
+## Automated Tests (Vitest)
+
+100% test coverage is the key to great vibe coding. Tests let you move fast, trust your instincts, and ship with confidence — without them, vibe coding is just yolo coding. With tests, it's a superpower.
+
+**Framework:** [Vitest](https://vitest.dev) v4 with `happy-dom` for DOM tests. Config lives in `vitest.config.js`; tests live in `test/`.
+
+**Run tests:**
+
+```sh
+npm test         # run the suite once
+npm run test:watch  # watch mode during development
+```
+
+**Test layers:**
+
+- **Unit tests** (`test/*.test.js`) — pure logic and API mapping. `plant-api.test.js` mocks `fetch` and verifies the iNaturalist response mapping, error fallbacks, and the plant modal DOM behavior.
+- **Data integrity tests** — `zones.test.js` validates `zones.json`: required fields, the image file exists, every zone has plants, and every polygon stays within the image bounds. This catches bad admin-tool exports before a client sees them.
+- **Regression tests** (`test/*.regression-*.test.js`) — added by `/qa` when it fixes a bug, so the bug can't silently return.
+- **E2E/smoke** — browser-based, run via `/qa` (gstack browse) against `npm run dev`.
+
+**Conventions:**
+
+- File naming: `test/<module>.test.js`; regression tests `test/<module>.regression-NNN.test.js`
+- Assertion style: `expect()` with descriptive failure messages on data-driven loops
+- Mock all network calls with `vi.stubGlobal('fetch', ...)`; never hit live APIs in tests
+- CI runs `npm test` on every push and PR (`.github/workflows/test.yml`)
+
+---
+
 ## ✅ What's Been Integrated
 
 Your project now has full API integration! Here's what happens:

@@ -33,6 +33,18 @@ npm run dev    # Start Browser-Sync dev server with live reload
 npm run preview # Start Browser-Sync without file watching
 ```
 
+## Testing
+
+- Run tests: `npm test` (Vitest, config in `vitest.config.js`, tests in `test/`)
+- See TESTING.md for layers and conventions
+- Test expectations:
+  - 100% test coverage is the goal — tests make vibe coding safe
+  - When writing new functions, write a corresponding test
+  - When fixing a bug, write a regression test
+  - When adding error handling, write a test that triggers the error
+  - When adding a conditional (if/else, switch), write tests for BOTH paths
+  - Never commit code that makes existing tests fail
+
 ## Working with Zones
 
 When adding or modifying garden zones:
