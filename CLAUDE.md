@@ -13,18 +13,21 @@ Interactive web app for a landscape architecture business. Clients click on regi
 
 ## Architecture
 
-- `index.html` — main page with popup panels for each garden zone and a canvas overlay for hover highlights
-- `script.js` — zone definitions (polygon coordinates), click/hover handlers, canvas overlay rendering, responsive coordinate scaling
+- `zones.json` — single source of truth: project name, plan image, and zone definitions (polygon coords + plant lists). Everything on the client page is built from this file at runtime.
+- `index.html` — minimal shell (map container, nav, popup container); all zone UI is generated dynamically
+- `script.js` — fetches `zones.json`, renders the plan as a Leaflet `imageOverlay` (CRS.Simple) with clickable polygon layers, builds zone-pill nav + popup panels, loads plant data per zone
 - `plant-api.js` — plant data fetching via iNaturalist API (free, no key required); includes search and modal display
-- `styles.css` — main styles including responsive layout and popup panels
-- `admin.html` / `admin.js` / `admin-styles.css` — admin interface for managing zones
+- `styles.css` — design tokens + responsive layout; desktop sidebar panels become mobile bottom sheets at ≤768px
+- `admin.html` / `admin.js` / `admin-styles.css` — admin interface: upload plan image, draw zones (Leaflet.draw), save zones.json
+- `save-server.js` — tiny dev server on :3001 that persists zones.json from the admin UI (run via `npm run dev`)
 - `generate-client.js` — generates client-facing HTML from admin data
 
 ## Key Concepts
 
-- **Zone coordinates** are defined as polygon arrays in `script.js` relative to original image dimensions (1500x1034), then scaled dynamically to the displayed image size
-- **Plant data** is fetched from the iNaturalist API at runtime and displayed in modals
-- **Popups** are sidebar panels that slide in when a zone is clicked; each zone has its own popup div with a `data-plants` attribute listing plant names
+- **Zone coordinates** in `zones.json` are flat `[x1,y1,x2,y2,…]` arrays in original image pixels (1500x1034). `script.js` converts them to Leaflet CRS.Simple latlngs (`[imageHeight - y, x]` — Y is inverted).
+- **Plant data** is fetched from the iNaturalist API at runtime. Cards/modals title with the **designed name from zones.json** (the API supplies photo + scientific name) — don't switch titles back to the API's first-match common name; it can be a different species (see test/script.regression-002.test.js).
+- **Popups** are dynamically built panels (desktop: right sidebar; mobile: bottom sheet). Plant lists are attached via `dataset.plants` — never interpolate them into an HTML attribute string (apostrophes in plant names break it; see test/script.regression-001.test.js).
+- **Backdrop** (`#backdrop`) is mobile-only; desktop relies on `body.panel-open` to keep the zone nav clear of the open panel.
 
 ## Development
 
