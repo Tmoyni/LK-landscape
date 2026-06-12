@@ -26,6 +26,18 @@
  *    - Free, no API key required
  */
 
+// Escape for safe interpolation into HTML text and attribute contexts.
+// API responses are third-party data — never trust them in innerHTML.
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+}
+
 // Configuration - Add your API keys here
 const API_CONFIG = {
     perenual: {
@@ -263,40 +275,47 @@ function showPlantModal(plantData) {
                 modal.style.display = 'none';
             }
         });
+        // Backdrop click-to-close — also once; the modal element is reused
+        // across opens, so per-open registration would stack listeners.
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
     }
 
     modal.innerHTML = `
         <div class="modal-content">
             <button class="modal-close" aria-label="Close plant details">&times;</button>
             <div class="modal-body">
-                ${plantData.image ? `<img src="${plantData.image}" alt="${plantData.commonName}" class="modal-image">` : ''}
-                <h2>${plantData.commonName}</h2>
-                <p class="scientific-name"><em>${plantData.scientificName}</em></p>
+                ${plantData.image ? `<img src="${escapeHtml(plantData.image)}" alt="${escapeHtml(plantData.commonName)}" class="modal-image">` : ''}
+                <h2>${escapeHtml(plantData.commonName)}</h2>
+                <p class="scientific-name"><em>${escapeHtml(plantData.scientificName)}</em></p>
 
-                ${plantData.description ? `<p class="description">${plantData.description}</p>` : ''}
+                ${plantData.description ? `<p class="description">${escapeHtml(plantData.description)}</p>` : ''}
 
                 <div class="plant-stats">
                     ${plantData.dimensions ? `
                         <div class="stat">
-                            <strong>Height:</strong> ${plantData.dimensions.height}
+                            <strong>Height:</strong> ${escapeHtml(plantData.dimensions.height)}
                         </div>
                         <div class="stat">
-                            <strong>Spread:</strong> ${plantData.dimensions.spread}
+                            <strong>Spread:</strong> ${escapeHtml(plantData.dimensions.spread)}
                         </div>
                     ` : ''}
 
                     ${plantData.care ? `
                         <div class="stat">
-                            <strong>Watering:</strong> ${plantData.care.watering}
+                            <strong>Watering:</strong> ${escapeHtml(plantData.care.watering)}
                         </div>
                         <div class="stat">
-                            <strong>Sunlight:</strong> ${Array.isArray(plantData.care.sunlight) ? plantData.care.sunlight.join(', ') : plantData.care.sunlight}
+                            <strong>Sunlight:</strong> ${escapeHtml(Array.isArray(plantData.care.sunlight) ? plantData.care.sunlight.join(', ') : plantData.care.sunlight)}
                         </div>
                     ` : ''}
                 </div>
 
                 ${plantData.wikipediaUrl ? `
-                    <a href="${plantData.wikipediaUrl}" target="_blank" class="wiki-link">Read more on Wikipedia →</a>
+                    <a href="${escapeHtml(plantData.wikipediaUrl)}" target="_blank" rel="noopener" class="wiki-link">Read more on Wikipedia →</a>
                 ` : ''}
             </div>
         </div>
@@ -304,16 +323,11 @@ function showPlantModal(plantData) {
 
     modal.style.display = 'flex';
 
-    // Close modal functionality
+    // Close button is recreated by innerHTML on every open, so this
+    // listener must be re-attached per open (unlike the backdrop's).
     const closeBtn = modal.querySelector('.modal-close');
     closeBtn.addEventListener('click', () => {
         modal.style.display = 'none';
-    });
-
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.style.display = 'none';
-        }
     });
 }
 

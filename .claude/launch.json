@@ -1,0 +1,26 @@
+{
+    "version": "0.0.1",
+    "configurations": [
+        {
+            "name": "dev (browser-sync + save-server)",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "dev"],
+            "port": 3000,
+            "autoPort": true
+        },
+        {
+            "name": "save-server (zones.json persistence)",
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["save-server.js"],
+            "port": 3001,
+            "autoPort": false
+        },
+        {
+            "name": "preview (no file watching)",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "preview"],
+            "port": 3000,
+            "autoPort": true
+        }
+    ]
+}
